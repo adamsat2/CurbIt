@@ -11,11 +11,15 @@ final class ImpulseFormViewController: UIViewController {
     var onImpulseSaved: (() -> Void)?
     
     private let incompleteGoals: [Goal]
+    private let impulseToEdit: Impulse?
     private var selectedGoal: Goal?
+    
+    private var isEditMode: Bool {
+        return impulseToEdit != nil
+    }
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Log Resisted Impulse"
         label.font = .systemFont(ofSize: 22, weight: .bold)
         label.textColor = .label
         return label
@@ -47,7 +51,6 @@ final class ImpulseFormViewController: UIViewController {
         field.layer.cornerRadius = 10
         field.font = .preferredFont(forTextStyle: .body)
         
-        // Currency symbol prefix
         let prefixLabel = UILabel()
         prefixLabel.text = "  \(AppPreferences.shared.currency.symbol)  "
         prefixLabel.font = .systemFont(ofSize: 17, weight: .bold)
@@ -64,7 +67,7 @@ final class ImpulseFormViewController: UIViewController {
         config.imagePlacement = .trailing
         config.imagePadding = 8
         config.baseForegroundColor = AppTheme.vaultTint
-        config.baseBackgroundColor = AppTheme.vaultTint
+        config.baseBackgroundColor = AppTheme.vaultTint.withAlphaComponent(0.12)
         config.contentInsets = NSDirectionalEdgeInsets(top: 12, leading: 14, bottom: 12, trailing: 14)
         
         let button = UIButton(configuration: config)
@@ -74,7 +77,6 @@ final class ImpulseFormViewController: UIViewController {
     
     private lazy var saveButton: UIButton = {
         var config = UIButton.Configuration.filled()
-        config.title = "Save Impulse"
         config.cornerStyle = .capsule
         config.baseBackgroundColor = AppTheme.vaultTint
         config.contentInsets = NSDirectionalEdgeInsets(top: 14, leading: 24, bottom: 14, trailing: 24)
@@ -94,15 +96,14 @@ final class ImpulseFormViewController: UIViewController {
         return stack
     }()
     
-    init(incompleteGoals: [Goal]) {
+    init(incompleteGoals: [Goal], impulseToEdit: Impulse? = nil) {
         self.incompleteGoals = incompleteGoals
+        self.impulseToEdit = impulseToEdit
         super.init(nibName: nil, bundle: nil)
         
-        // Silent auto selection if exactly one incomplete goal exists
-        if incompleteGoals.count == 1 {
-            self.selectedGoal = incompleteGoals.first
+        if let impulse = impulseToEdit {
+            self.selectedGoal = impulse.goal
         } else {
-            // Default to the first goal in the list if multiple exist
             self.selectedGoal = incompleteGoals.first
         }
     }
@@ -118,10 +119,11 @@ final class ImpulseFormViewController: UIViewController {
         setupNavigation()
         setupLayout()
         configureGoalMenu()
+        populateExistingDataIfEditing()
     }
     
     private func setupNavigation() {
-        navigationItem.title = "New Impulse"
+        navigationItem.title = isEditMode ? "Edit Impulse" : "New Impulse"
         let cancelAction = UIAction { [weak self] _ in
             self?.dismiss(animated: true)
         }
@@ -129,6 +131,9 @@ final class ImpulseFormViewController: UIViewController {
     }
     
     private func setupLayout() {
+        titleLabel.text = isEditMode ? "Edit Resisted Impulse" : "Log Resisted Impulse"
+        saveButton.configuration?.title = isEditMode ? "Update Impulse" : "Save Impulse"
+        
         view.addSubview(contentStack)
         
         contentStack.addArrangedSubview(titleLabel)
@@ -151,8 +156,22 @@ final class ImpulseFormViewController: UIViewController {
         ])
     }
     
+    private func populateExistingDataIfEditing() {
+        guard let impulse = impulseToEdit else { return }
+        nameTextField.text = impulse.title
+        amountTextField.text = "\(impulse.amount)"
+        updatePickerTitle()
+    }
+    
     private func configureGoalMenu() {
         updatePickerTitle()
+        
+        // If editing or only one goal is available, lock the menu picker
+        if isEditMode || incompleteGoals.count <= 1 {
+            goalPickerButton.showsMenuAsPrimaryAction = false
+            goalPickerButton.isUserInteractionEnabled = false
+            return
+        }
         
         let actions = incompleteGoals.map { goal in
             UIAction(
@@ -193,16 +212,23 @@ final class ImpulseFormViewController: UIViewController {
             return
         }
         
-        // SwiftData Insertion
         let context = DataController.shared.context
-        let newImpulse = Impulse(
-            title: name,
-            amount: decimalAmount,
-            date: .now,
-            goal: goal
-        )
         
-        context.insert(newImpulse)
+        if let impulse = impulseToEdit {
+            // Edit Mode: update existing instance
+            impulse.title = name
+            impulse.amount = decimalAmount
+            impulse.goal = goal
+        } else {
+            // Create Mode: insert new instance
+            let newImpulse = Impulse(
+                title: name,
+                amount: decimalAmount,
+                date: .now,
+                goal: goal
+            )
+            context.insert(newImpulse)
+        }
         
         do {
             try context.save()

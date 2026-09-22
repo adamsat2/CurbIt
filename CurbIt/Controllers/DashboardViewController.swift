@@ -316,6 +316,40 @@ final class DashboardViewController: UIViewController {
         let navController = UINavigationController(rootViewController: settingsVC)
         present(navController, animated: true)
     }
+    
+    private func presentDeleteConfirmation(for goal: Goal) {
+        let alert = UIAlertController(
+            title: "Delete Goal",
+            message: "Are you sure you want to delete \"\(goal.title)\"? All logged resisted impulses for this goal will be removed.",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        
+        let deleteAction = UIAlertAction(title: "Delete", style: .destructive) { [weak self] _ in
+            self?.deleteGoal(goal)
+        }
+        alert.addAction(deleteAction)
+        
+        present(alert, animated: true)
+    }
+    
+    private func deleteGoal(_ goal: Goal) {
+        // Decrement completed counter if the deleted goal was completed
+        if goal.isCompleted {
+            AppPreferences.shared.totalGoalsCompleted = max(0, AppPreferences.shared.totalGoalsCompleted - 1)
+        }
+        
+        let context = DataController.shared.context
+        context.delete(goal)
+        
+        do {
+            try context.save()
+            refreshData()
+        } catch {
+            print("Failed to delete goal: \(error)")
+        }
+    }
 }
 
 extension DashboardViewController: UITableViewDelegate, UITableViewDataSource {
@@ -332,9 +366,13 @@ extension DashboardViewController: UITableViewDelegate, UITableViewDataSource {
             cell.cardView.configure(with: goal)
             cell.contentView.alpha = goal.isCompleted ? 0.5 : 1.0
             
-            // Wire up the edit action triggered from the card's UIMenu
+            // Wire up the edit & delete actions triggered from the card's UIMenu
             cell.cardView.onEditTapped = { [weak self] in
                 self?.presentEditGoalForm(goal: goal)
+            }
+        
+            cell.cardView.onDeleteTapped = { [weak self] in
+                self?.presentDeleteConfirmation(for: goal)
             }
             
             return cell
@@ -342,8 +380,8 @@ extension DashboardViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let goal = goals[indexPath.row]
-        
-        // TODO: Push GoalViewController(goal: goal)
+        let selectedGoal = goals[indexPath.row]
+        let detailVC = GoalViewController(goal: selectedGoal)
+        navigationController?.pushViewController(detailVC, animated: true)
     }
 }

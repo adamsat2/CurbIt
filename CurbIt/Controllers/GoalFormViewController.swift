@@ -3,7 +3,6 @@
 //  CurbIt
 //
 
-
 import UIKit
 import SwiftData
 
@@ -101,24 +100,6 @@ final class GoalFormViewController: UIViewController {
         return picker
     }()
     
-    private let descriptionHeaderLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Description (Optional)"
-        label.font = .preferredFont(forTextStyle: .headline)
-        return label
-    }()
-    
-    private let descriptionTextView: UITextView = {
-        let tv = UITextView()
-        tv.font = .preferredFont(forTextStyle: .body)
-        tv.backgroundColor = AppTheme.cardSurface
-        tv.layer.borderColor = AppTheme.subtleBorder.cgColor
-        tv.layer.borderWidth = 1.0
-        tv.layer.cornerRadius = 10
-        tv.textContainerInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
-        return tv
-    }()
-    
     private let aiDisclaimerLabel: UILabel = {
         let label = UILabel()
         label.text = "Used with Apple Intelligence to create milestone motivation. Requires supported devices, enabled state, and an English locale."
@@ -183,8 +164,6 @@ final class GoalFormViewController: UIViewController {
         contentStackView.addArrangedSubview(nameTextField)
         contentStackView.addArrangedSubview(amountTextField)
         contentStackView.addArrangedSubview(dateToggleStack)
-        contentStackView.addArrangedSubview(descriptionHeaderLabel)
-        contentStackView.addArrangedSubview(descriptionTextView)
         contentStackView.addArrangedSubview(aiDisclaimerLabel)
         contentStackView.addArrangedSubview(submitButton)
         
@@ -205,7 +184,6 @@ final class GoalFormViewController: UIViewController {
             
             nameTextField.heightAnchor.constraint(equalToConstant: 50),
             amountTextField.heightAnchor.constraint(equalToConstant: 50),
-            descriptionTextView.heightAnchor.constraint(equalToConstant: 90),
             submitButton.heightAnchor.constraint(equalToConstant: 50)
         ])
     }
@@ -215,7 +193,6 @@ final class GoalFormViewController: UIViewController {
         
         nameTextField.text = goal.title
         amountTextField.text = "\(goal.targetAmount)"
-        descriptionTextView.text = goal.goalDescription
         
         if let dueDate = goal.dueDate {
             dueDateSwitch.isOn = true
@@ -229,15 +206,12 @@ final class GoalFormViewController: UIViewController {
             amountTextField.alpha = 0.5
             dueDateSwitch.isEnabled = false
             datePicker.isEnabled = false
-            descriptionTextView.isEditable = false
-            descriptionTextView.alpha = 0.5
         }
     }
     
     private func attachInputObservers() {
         nameTextField.addTarget(self, action: #selector(markDirty), for: .editingChanged)
         amountTextField.addTarget(self, action: #selector(markDirty), for: .editingChanged)
-        descriptionTextView.delegate = self
     }
     
     @objc private func markDirty() {
@@ -286,21 +260,19 @@ final class GoalFormViewController: UIViewController {
         }
         
         let selectedDate = dueDateSwitch.isOn ? datePicker.date : nil
-        let descriptionText = descriptionTextView.text.trimmingCharacters(in: .whitespacesAndNewlines)
         
         // Display loading spinner on button
         submitButton.configuration?.showsActivityIndicator = true
         submitButton.isEnabled = false
         
         Task {
-            let milestones = await MotivationService.shared.generateMilestones(from: descriptionText)
+            let milestones = await MotivationService.shared.generateMilestones(from: name)
             
             await MainActor.run {
                 saveGoal(
                     title: name,
                     amount: decimalAmount,
                     dueDate: selectedDate,
-                    description: descriptionText.isEmpty ? nil : descriptionText,
                     milestones: milestones
                 )
             }
@@ -311,7 +283,6 @@ final class GoalFormViewController: UIViewController {
         title: String,
         amount: Decimal,
         dueDate: Date?,
-        description: String?,
         milestones: MotivationMilestones
     ) {
         let context = DataController.shared.context
@@ -322,7 +293,6 @@ final class GoalFormViewController: UIViewController {
             if !goal.isCompleted {
                 goal.targetAmount = amount
                 goal.dueDate = dueDate
-                goal.goalDescription = description
                 goal.motivationStarter = milestones.starter
                 goal.motivationMiddle = milestones.middle
                 goal.motivationEnd = milestones.end
@@ -361,12 +331,6 @@ final class GoalFormViewController: UIViewController {
         
         let feedback = UINotificationFeedbackGenerator()
         feedback.notificationOccurred(.error)
-    }
-}
-
-extension GoalFormViewController: UITextViewDelegate {
-    func textViewDidChange(_ textView: UITextView) {
-        markDirty()
     }
 }
 

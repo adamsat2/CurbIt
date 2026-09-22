@@ -12,7 +12,6 @@ final class Goal {
     var title: String
     var targetAmount: Decimal
     var dueDate: Date?
-    var goalDescription: String?
     var createdAt: Date
     var isCompleted: Bool
     
@@ -51,7 +50,6 @@ final class Goal {
         self.title = title
         self.targetAmount = targetAmount
         self.dueDate = dueDate
-        self.goalDescription = goalDescription
         self.createdAt = createdAt
         self.isCompleted = isCompleted
         self.impulses = []
