@@ -2,14 +2,6 @@
 //  RegistrationViewController.swift
 //  CurbIt
 //
-//  Created by Adam Stern on 22/09/2026.
-//
-
-
-//
-//  RegistrationViewController.swift
-//  CurbIt
-//
 
 import UIKit
 import SwiftUI
@@ -17,8 +9,6 @@ import SwiftUI
 final class RegistrationViewController: UIViewController {
 
     private var selectedCurrency: AppCurrency = .usd
-    
-    // MARK: - UI Components
     
     private let welcomeLabel: UILabel = {
         let label = UILabel()
@@ -42,22 +32,30 @@ final class RegistrationViewController: UIViewController {
     private let nameTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "Enter your name"
-        textField.borderStyle = .roundedRect
-        textField.backgroundColor = .secondarySystemBackground
+        textField.borderStyle = .none
+        textField.backgroundColor = AppTheme.cardSurface
+        textField.layer.borderColor = AppTheme.subtleBorder.cgColor
+        textField.layer.borderWidth = 1.0
+        textField.layer.cornerRadius = 8
         textField.autocorrectionType = .no
         textField.returnKeyType = .done
         textField.clearButtonMode = .whileEditing
         textField.font = .preferredFont(forTextStyle: .body)
         textField.adjustsFontForContentSizeCategory = true
+        
+        let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: 12, height: 50))
+        textField.leftView = paddingView
+        textField.leftViewMode = .always
         return textField
     }()
     
     private lazy var currencyButton: UIButton = {
         var config = UIButton.Configuration.tinted()
         config.title = "Currency: USD ($)"
-        config.image = UIImage(systemName: "chevron.up.chevron.down")
         config.imagePlacement = .trailing
         config.imagePadding = 8
+        config.baseForegroundColor = AppTheme.vaultTint
+        config.baseBackgroundColor = AppTheme.vaultTint
         config.contentInsets = NSDirectionalEdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16)
         
         let button = UIButton(configuration: config)
@@ -69,10 +67,11 @@ final class RegistrationViewController: UIViewController {
         var config = UIButton.Configuration.filled()
         config.title = "Get Started"
         config.cornerStyle = .capsule
+        config.baseBackgroundColor = AppTheme.vaultTint
         config.contentInsets = NSDirectionalEdgeInsets(top: 16, leading: 32, bottom: 16, trailing: 32)
         
         let button = UIButton(configuration: config)
-        button.isEnabled = false // Disabled by default until name is entered
+        button.isEnabled = false
         button.addAction(UIAction { [weak self] _ in
             self?.completeRegistration()
         }, for: .touchUpInside)
@@ -86,8 +85,6 @@ final class RegistrationViewController: UIViewController {
         stack.translatesAutoresizingMaskIntoConstraints = false
         return stack
     }()
-    
-    // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -104,15 +101,12 @@ final class RegistrationViewController: UIViewController {
         view.addGestureRecognizer(tapGesture)
     }
     
-    // MARK: - Setup
-    
     private func setupUI() {
         view.addSubview(stackView)
         
         stackView.addArrangedSubview(welcomeLabel)
         stackView.addArrangedSubview(subtitleLabel)
         
-        // Spacer
         stackView.setCustomSpacing(40, after: subtitleLabel)
         
         stackView.addArrangedSubview(nameTextField)
@@ -145,8 +139,6 @@ final class RegistrationViewController: UIViewController {
         currencyButton.menu = UIMenu(title: "Select Currency", children: actions)
     }
     
-    // MARK: - Actions
-    
     @objc private func textFieldDidChange() {
         let inputName = nameTextField.text?.trimmingCharacters(in: .whitespaces) ?? ""
         confirmButton.isEnabled = !inputName.isEmpty
@@ -158,14 +150,13 @@ final class RegistrationViewController: UIViewController {
     
     private func completeRegistration() {
         let inputName = nameTextField.text?.trimmingCharacters(in: .whitespaces) ?? ""
-        guard !inputName.isEmpty else { return } // Safety check[cite: 3]
-        
-        // 1. Save to UserDefaults
+        guard !inputName.isEmpty else { return } // Safety check
+    
         AppPreferences.shared.userName = inputName
         AppPreferences.shared.currency = selectedCurrency
         AppPreferences.shared.isFirstLaunch = false
         
-        // 2. Transition to Dashboard
+        // Transition to Dashboard
         let dashboardVC = DashboardViewController()
         let navController = UINavigationController(rootViewController: dashboardVC)
         
@@ -181,8 +172,6 @@ final class RegistrationViewController: UIViewController {
     }
 }
 
-// MARK: - UITextFieldDelegate
-
 extension RegistrationViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
@@ -192,8 +181,6 @@ extension RegistrationViewController: UITextFieldDelegate {
         return true
     }
 }
-
-// MARK: - Preview
 
 #Preview("Registration") {
     RegistrationViewController()

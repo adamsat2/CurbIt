@@ -2,16 +2,12 @@
 //  GoalFormViewController.swift
 //  CurbIt
 //
-//  Created by Adam Stern on 22/09/2026.
-//
 
 
 import UIKit
 import SwiftData
 
 final class GoalFormViewController: UIViewController {
-
-    // MARK: - Properties
     
     var onGoalSaved: (() -> Void)?
     
@@ -21,8 +17,6 @@ final class GoalFormViewController: UIViewController {
             isModalInPresentation = isDirty
         }
     }
-    
-    // MARK: - UI Components
     
     private let scrollView: UIScrollView = {
         let scroll = UIScrollView()
@@ -121,7 +115,7 @@ final class GoalFormViewController: UIViewController {
         tv.layer.borderColor = AppTheme.subtleBorder.cgColor
         tv.layer.borderWidth = 1.0
         tv.layer.cornerRadius = 10
-        tv.textContainerInset = UIEdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10)
+        tv.textContainerInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
         return tv
     }()
     
@@ -146,8 +140,6 @@ final class GoalFormViewController: UIViewController {
         }, for: .touchUpInside)
         return button
     }()
-
-    // MARK: - Init
     
     init(goal: Goal? = nil) {
         self.existingGoal = goal
@@ -157,8 +149,6 @@ final class GoalFormViewController: UIViewController {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -170,8 +160,6 @@ final class GoalFormViewController: UIViewController {
         populateExistingData()
         attachInputObservers()
     }
-    
-    // MARK: - Setup
     
     private func setupNavigation() {
         title = existingGoal == nil ? "New Goal" : "Edit Goal"
@@ -251,8 +239,6 @@ final class GoalFormViewController: UIViewController {
         amountTextField.addTarget(self, action: #selector(markDirty), for: .editingChanged)
         descriptionTextView.delegate = self
     }
-    
-    // MARK: - Actions
     
     @objc private func markDirty() {
         isDirty = true
@@ -378,15 +364,11 @@ final class GoalFormViewController: UIViewController {
     }
 }
 
-// MARK: - UITextViewDelegate
-
 extension GoalFormViewController: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
         markDirty()
     }
 }
-
-// MARK: - UIAdaptivePresentationControllerDelegate
 
 extension GoalFormViewController: UIAdaptivePresentationControllerDelegate {
     func presentationControllerShouldDismiss(_ presentationController: UIPresentationController) -> Bool {

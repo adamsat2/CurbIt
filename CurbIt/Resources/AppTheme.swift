@@ -1,3 +1,8 @@
+//
+//  AppTheme.swift
+//  CurbIt
+//
+
 import UIKit
 
 enum AppTheme {
@@ -5,7 +10,6 @@ enum AppTheme {
     static let cardSurface = UIColor(named: "CardSurface") ?? .secondarySystemGroupedBackground
     static let subtleBorder = UIColor(named: "SubtleBorder") ?? .separator
     
-    // Apply global appearance styling
     static func applyGlobalStyling() {
         let window = UIApplication.shared.connectedScenes
             .compactMap { $0 as? UIWindowScene }

@@ -2,20 +2,14 @@
 //  GoalCardView.swift
 //  CurbIt
 //
-//  Created by Adam Stern on 22/09/2026.
-//
-
 
 import UIKit
 import SwiftUI
 
 final class GoalCardView: UIView {
     
-    // MARK: - Handlers
     var onEditTapped: (() -> Void)?
     var onDeleteTapped: (() -> Void)?
-    
-    // MARK: - UI Components
     
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -65,15 +59,12 @@ final class GoalCardView: UIView {
         return label
     }()
     
-    // MARK: - Init
-    
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupView()
         setupLayout()
         updateBorderColor()
-        
-        // Modern iOS 17+ Trait Registration[cite: 1]
+    
         registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (view: GoalCardView, _) in
             view.updateBorderColor()
         }
@@ -82,8 +73,6 @@ final class GoalCardView: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    // MARK: - Setup
     
     private func setupView() {
         backgroundColor = AppTheme.cardSurface
@@ -137,8 +126,6 @@ final class GoalCardView: UIView {
         layer.borderColor = AppTheme.subtleBorder.cgColor
     }
     
-    // MARK: - Configuration
-    
     func configure(with goal: Goal) {
         titleLabel.text = goal.title
         
@@ -163,9 +150,9 @@ final class GoalCardView: UIView {
             dueDateLabel.isHidden = true
         }
         
-        // Placeholder for the AI logic depending on completion percentage
+        // AI Motivation Logic
         if goal.isCompleted {
-            motivationLabel.text = "Goal reached! Tap the ellipsis to archive or delete."
+            motivationLabel.text = ""
         } else if goal.progressRatio < 0.3 {
             motivationLabel.text = goal.motivationStarter ?? "Great start! Every impulse resisted adds up."
         } else if goal.progressRatio < 0.8 {
@@ -175,8 +162,6 @@ final class GoalCardView: UIView {
         }
     }
 }
-
-// MARK: - Table View Cell Wrapper
 
 final class GoalCardCell: UITableViewCell {
     
@@ -204,15 +189,12 @@ final class GoalCardCell: UITableViewCell {
     }
 }
 
-// MARK: - Preview
-
 #Preview("Goal Card", traits: .sizeThatFitsLayout) {
     let mockGoal = Goal(
         title: "New MacBook Pro",
         targetAmount: 2000.0,
         dueDate: Calendar.current.date(byAdding: .day, value: 30, to: .now)
     )
-    // Add a mock impulse to show progress
     mockGoal.impulses.append(Impulse(title: "Skipped takeout", amount: 850.0))
     
     let view = GoalCardView()

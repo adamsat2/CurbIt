@@ -2,20 +2,13 @@
 //  DashboardViewController.swift
 //  CurbIt
 //
-//  Created by Adam Stern on 22/09/2026.
-//
-
 
 import UIKit
 import SwiftData
 
 final class DashboardViewController: UIViewController {
-
-    // MARK: - State
     
     private var goals: [Goal] = []
-    
-    // MARK: - UI Components
     
     private let greetingLabel: UILabel = {
         let label = UILabel()
@@ -25,12 +18,29 @@ final class DashboardViewController: UIViewController {
         return label
     }()
     
+    private let totalSavedCaptionLabel: UILabel = {
+        let label = UILabel()
+        label.text = "TOTAL SAVED"
+        label.font = .systemFont(ofSize: 12, weight: .bold)
+        label.textColor = .secondaryLabel
+        label.adjustsFontForContentSizeCategory = true
+        return label
+    }()
+    
     private let totalSavedLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 34, weight: .heavy)
-        label.textColor = .systemGreen
+        label.textColor = AppTheme.vaultTint
         label.adjustsFontForContentSizeCategory = true
         return label
+    }()
+    
+    private lazy var totalSavedStack: UIStackView = {
+        let stack = UIStackView(arrangedSubviews: [totalSavedCaptionLabel, totalSavedLabel])
+        stack.axis = .vertical
+        stack.alignment = .leading
+        stack.spacing = 2
+        return stack
     }()
     
     private let completedGoalsLabel: UILabel = {
@@ -40,12 +50,30 @@ final class DashboardViewController: UIViewController {
         return label
     }()
     
+    private let completedGoalsCaptionLabel: UILabel = {
+        let label = UILabel()
+        label.text = "COMPLETED"
+        label.font = .systemFont(ofSize: 12, weight: .bold)
+        label.textColor = .secondaryLabel
+        label.textAlignment = .right
+        label.adjustsFontForContentSizeCategory = true
+        return label
+    }()
+
+    private lazy var completedGoalsStack: UIStackView = {
+        let stack = UIStackView(arrangedSubviews: [completedGoalsCaptionLabel, completedGoalsLabel])
+        stack.axis = .vertical
+        stack.alignment = .trailing
+        stack.spacing = 2
+        return stack
+    }()
+    
     private lazy var mainTableView: UITableView = {
         let table = UITableView(frame: .zero, style: .insetGrouped)
         table.translatesAutoresizingMaskIntoConstraints = false
         table.backgroundColor = .clear
         table.separatorStyle = .none
-        table.register(UITableViewCell.self, forCellReuseIdentifier: "GoalCardCell") // Placeholder until GoalCardCell is built
+        table.register(GoalCardCell.self, forCellReuseIdentifier: "GoalCardCell") // Placeholder until GoalCardCell is built
         table.delegate = self
         table.dataSource = self
         return table
@@ -57,6 +85,7 @@ final class DashboardViewController: UIViewController {
         config.image = UIImage(systemName: "plus.circle.fill")
         config.imagePadding = 8
         config.cornerStyle = .capsule
+        config.baseBackgroundColor = AppTheme.vaultTint
         config.contentInsets = NSDirectionalEdgeInsets(top: 16, leading: 24, bottom: 16, trailing: 24)
         
         let button = UIButton(configuration: config)
@@ -72,28 +101,37 @@ final class DashboardViewController: UIViewController {
         return button
     }()
     
-    private let emptyStateView: UIStackView = {
-        let icon = UIImageView(image: UIImage(systemName: "target"))
-        icon.tintColor = .tertiaryLabel
+    private lazy var emptyStateView: UIStackView = {
+        let icon = UIImageView(image: UIImage(systemName: "banknote"))
+        icon.tintColor = AppTheme.vaultTint
         icon.contentMode = .scaleAspectFit
         icon.heightAnchor.constraint(equalToConstant: 60).isActive = true
         
         let message = UILabel()
-        message.text = "No goals yet.\nTap the + button to set your first target!"
+        message.text = "No goals yet.\nCreate a new one to start curbing your impulses."
         message.numberOfLines = 0
         message.textAlignment = .center
         message.textColor = .secondaryLabel
         message.font = .preferredFont(forTextStyle: .body)
         
-        let stack = UIStackView(arrangedSubviews: [icon, message])
+        var config = UIButton.Configuration.filled()
+        config.title = "Add Your First Goal"
+        config.cornerStyle = .capsule
+        config.baseBackgroundColor = AppTheme.vaultTint
+        config.contentInsets = NSDirectionalEdgeInsets(top: 12, leading: 24, bottom: 12, trailing: 24)
+        
+        let actionButton = UIButton(configuration: config)
+        actionButton.addAction(UIAction { [weak self] _ in
+            self?.presentAddGoalForm()
+        }, for: .touchUpInside)
+        
+        let stack = UIStackView(arrangedSubviews: [icon, message, actionButton])
         stack.axis = .vertical
         stack.spacing = 16
         stack.alignment = .center
         stack.isHidden = true
         return stack
     }()
-    
-    // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -107,8 +145,6 @@ final class DashboardViewController: UIViewController {
         refreshData()
     }
     
-    // MARK: - Setup
-    
     private func setupNavigationBar() {
         let settingsAction = UIAction { [weak self] _ in
             // TODO: Navigate to SettingsViewController
@@ -116,7 +152,7 @@ final class DashboardViewController: UIViewController {
         let settingsItem = UIBarButtonItem(title: nil, image: UIImage(systemName: "gearshape.fill"), primaryAction: settingsAction)
         
         let addGoalAction = UIAction { [weak self] _ in
-            // TODO: Present GoalFormViewController
+            self?.presentAddGoalForm()
         }
         let addGoalItem = UIBarButtonItem(title: nil, image: UIImage(systemName: "plus"), primaryAction: addGoalAction)
         
@@ -125,9 +161,9 @@ final class DashboardViewController: UIViewController {
     }
     
     private func setupLayout() {
-        let headerHStack = UIStackView(arrangedSubviews: [totalSavedLabel, UIView(), completedGoalsLabel])
+        let headerHStack = UIStackView(arrangedSubviews: [totalSavedStack, UIView(), completedGoalsStack])
         headerHStack.axis = .horizontal
-        headerHStack.alignment = .lastBaseline
+        headerHStack.alignment = .top
         
         let headerVStack = UIStackView(arrangedSubviews: [greetingLabel, headerHStack])
         headerVStack.axis = .vertical
@@ -160,10 +196,8 @@ final class DashboardViewController: UIViewController {
         ])
     }
     
-    // MARK: - Data Fetching & Logic
-    
     private func refreshData() {
-        // 1. Fetch from SwiftData
+        // Fetch from SwiftData
         let descriptor = FetchDescriptor<Goal>()
         do {
             let fetched = try DataController.shared.context.fetch(descriptor)
@@ -172,7 +206,7 @@ final class DashboardViewController: UIViewController {
             print("Failed to fetch goals: \(error)")
         }
         
-        // 2. Update Greeting
+        // Update Greeting
         let hour = Calendar.current.component(.hour, from: Date())
         let name = AppPreferences.shared.userName
         switch hour {
@@ -182,7 +216,7 @@ final class DashboardViewController: UIViewController {
         default: greetingLabel.text = "Good night, \(name)"
         }
         
-        // 3. Compute Stats
+        // Compute Stats
         let totalSaved = goals.reduce(Decimal.zero) { $0 + $1.currentSaved }
         totalSavedLabel.text = AppPreferences.shared.format(amount: totalSaved)
         
@@ -196,15 +230,19 @@ final class DashboardViewController: UIViewController {
         countString.append(imageString)
         completedGoalsLabel.attributedText = countString
         
-        // 4. Update View States
+        // Update View States
+        let totalGoals = goals.count
         let hasIncompleteGoals = goals.contains(where: { !$0.isCompleted })
-        addImpulseButton.isEnabled = hasIncompleteGoals
-        addImpulseButton.configuration?.showsActivityIndicator = false // Reset just in case
-        
-        // Visual indicator if button is disabled due to no active goals
-        if !hasIncompleteGoals && !goals.isEmpty {
-            addImpulseButton.configuration?.subtitle = "(Needs active goal)"
+
+        if totalGoals == 0 {
+            addImpulseButton.isHidden = true
+        } else if !hasIncompleteGoals {
+            addImpulseButton.isHidden = false
+            addImpulseButton.isEnabled = false
+            addImpulseButton.configuration?.subtitle = "All goals completed"
         } else {
+            addImpulseButton.isHidden = false
+            addImpulseButton.isEnabled = true
             addImpulseButton.configuration?.subtitle = nil
         }
         
@@ -228,18 +266,48 @@ final class DashboardViewController: UIViewController {
         }
     }
     
-    // MARK: - Actions
-    
     private func presentAddImpulseForm() {
-        // Impact haptic on trigger[cite: 1]
+        // Impact haptic on trigger
         let generator = UIImpactFeedbackGenerator(style: .medium)
         generator.impactOccurred()
+                
+        let activeGoals = goals.filter { !$0.isCompleted }
+        guard !activeGoals.isEmpty else { return }
         
-        // TODO: Present Impulse Form Popup
+        let impulseVC = ImpulseFormViewController(incompleteGoals: activeGoals)
+        impulseVC.onImpulseSaved = { [weak self] in
+            self?.refreshData()
+        }
+        
+        let navController = UINavigationController(rootViewController: impulseVC)
+        
+        // Native bottom sheet detents
+        if let sheet = navController.sheetPresentationController {
+            sheet.detents = [.medium(), .large()]
+            sheet.prefersGrabberVisible = true
+        }
+        
+        present(navController, animated: true)
+    }
+    
+    private func presentAddGoalForm() {
+        let formVC = GoalFormViewController()
+        formVC.onGoalSaved = { [weak self] in
+            self?.refreshData()
+        }
+        let navController = UINavigationController(rootViewController: formVC)
+        present(navController, animated: true)
+    }
+    
+    private func presentEditGoalForm(goal: Goal) {
+        let formVC = GoalFormViewController(goal: goal)
+        formVC.onGoalSaved = { [weak self] in
+            self?.refreshData()
+        }
+        let navController = UINavigationController(rootViewController: formVC)
+        present(navController, animated: true)
     }
 }
-
-// MARK: - UITableViewDelegate & DataSource
 
 extension DashboardViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -247,21 +315,21 @@ extension DashboardViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        // TEMPORARY placeholder until GoalCardView/Cell is fully built
-        let cell = tableView.dequeueReusableCell(withIdentifier: "GoalCardCell", for: indexPath)
-        let goal = goals[indexPath.row]
-        
-        var config = cell.defaultContentConfiguration()
-        config.text = goal.title
-        config.secondaryText = AppPreferences.shared.format(amount: goal.currentSaved)
-        cell.contentConfiguration = config
-        
-        // Apply fade effect to completed goals as specified
-        cell.contentView.alpha = goal.isCompleted ? 0.5 : 1.0
-        cell.isUserInteractionEnabled = true
-        
-        return cell
-    }
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: "GoalCardCell", for: indexPath) as? GoalCardCell else {
+                return UITableViewCell()
+            }
+            
+            let goal = goals[indexPath.row]
+            cell.cardView.configure(with: goal)
+            cell.contentView.alpha = goal.isCompleted ? 0.5 : 1.0
+            
+            // Wire up the edit action triggered from the card's UIMenu
+            cell.cardView.onEditTapped = { [weak self] in
+                self?.presentEditGoalForm(goal: goal)
+            }
+            
+            return cell
+        }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)

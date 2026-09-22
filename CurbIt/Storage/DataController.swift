@@ -2,9 +2,6 @@
 //  DataController.swift
 //  CurbIt
 //
-//  Created by Adam Stern on 22/09/2026.
-//
-
 
 import Foundation
 import SwiftData

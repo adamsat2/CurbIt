@@ -1,16 +1,17 @@
+//
+//  ImpulseFormViewController.swift
+//  CurbIt
+//
+
 import UIKit
 import SwiftData
 
 final class ImpulseFormViewController: UIViewController {
-
-    // MARK: - Properties
     
     var onImpulseSaved: (() -> Void)?
     
     private let incompleteGoals: [Goal]
     private var selectedGoal: Goal?
-    
-    // MARK: - UI Components
     
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -60,7 +61,6 @@ final class ImpulseFormViewController: UIViewController {
     
     private lazy var goalPickerButton: UIButton = {
         var config = UIButton.Configuration.tinted()
-        config.image = UIImage(systemName: "chevron.up.chevron.down")
         config.imagePlacement = .trailing
         config.imagePadding = 8
         config.baseForegroundColor = AppTheme.vaultTint
@@ -94,13 +94,11 @@ final class ImpulseFormViewController: UIViewController {
         return stack
     }()
     
-    // MARK: - Init
-    
     init(incompleteGoals: [Goal]) {
         self.incompleteGoals = incompleteGoals
         super.init(nibName: nil, bundle: nil)
         
-        // Silent auto-selection if exactly one incomplete goal exists
+        // Silent auto selection if exactly one incomplete goal exists
         if incompleteGoals.count == 1 {
             self.selectedGoal = incompleteGoals.first
         } else {
@@ -112,8 +110,6 @@ final class ImpulseFormViewController: UIViewController {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -123,8 +119,6 @@ final class ImpulseFormViewController: UIViewController {
         setupLayout()
         configureGoalMenu()
     }
-    
-    // MARK: - Setup
     
     private func setupNavigation() {
         navigationItem.title = "New Impulse"
@@ -180,8 +174,6 @@ final class ImpulseFormViewController: UIViewController {
             goalPickerButton.configuration?.title = "Select a Goal"
         }
     }
-    
-    // MARK: - Save
     
     private func handleSave() {
         let name = nameTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
