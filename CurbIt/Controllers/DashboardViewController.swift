@@ -147,7 +147,7 @@ final class DashboardViewController: UIViewController {
     
     private func setupNavigationBar() {
         let settingsAction = UIAction { [weak self] _ in
-            // TODO: Navigate to SettingsViewController
+            self?.presentSettings()
         }
         let settingsItem = UIBarButtonItem(title: nil, image: UIImage(systemName: "gearshape.fill"), primaryAction: settingsAction)
         
@@ -305,6 +305,15 @@ final class DashboardViewController: UIViewController {
             self?.refreshData()
         }
         let navController = UINavigationController(rootViewController: formVC)
+        present(navController, animated: true)
+    }
+    
+    private func presentSettings() {
+        let settingsVC = SettingsViewController()
+        settingsVC.onSettingsSaved = { [weak self] in
+            self?.refreshData()
+        }
+        let navController = UINavigationController(rootViewController: settingsVC)
         present(navController, animated: true)
     }
 }

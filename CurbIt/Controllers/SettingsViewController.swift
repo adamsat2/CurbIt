@@ -1,15 +1,16 @@
+//
+//  SettingsViewController.swift
+//  CurbIt
+//
+
 import UIKit
 
 final class SettingsViewController: UIViewController {
-
-    // MARK: - Properties
     
     var onSettingsSaved: (() -> Void)?
     
-    private let initialCurrency: CurrencyPreference
-    private var selectedCurrency: CurrencyPreference
-    
-    // MARK: - UI Components
+    private let initialCurrency: AppCurrency
+    private var selectedCurrency: AppCurrency
     
     private let nameCaptionLabel: UILabel = {
         let label = UILabel()
@@ -47,7 +48,6 @@ final class SettingsViewController: UIViewController {
     
     private lazy var currencyButton: UIButton = {
         var config = UIButton.Configuration.tinted()
-        config.image = UIImage(systemName: "chevron.up.chevron.down")
         config.imagePlacement = .trailing
         config.imagePadding = 8
         config.baseForegroundColor = AppTheme.vaultTint
@@ -81,8 +81,6 @@ final class SettingsViewController: UIViewController {
         stack.translatesAutoresizingMaskIntoConstraints = false
         return stack
     }()
-
-    // MARK: - Init
     
     init() {
         let current = AppPreferences.shared.currency
@@ -95,8 +93,6 @@ final class SettingsViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: - Lifecycle
-
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
@@ -105,8 +101,6 @@ final class SettingsViewController: UIViewController {
         populateCurrentPreferences()
         configureCurrencyMenu()
     }
-    
-    // MARK: - Setup
     
     private func setupNavigation() {
         navigationItem.title = "Settings"
@@ -146,9 +140,8 @@ final class SettingsViewController: UIViewController {
     }
     
     private func configureCurrencyMenu() {
-        let options: [CurrencyPreference] = [.usd, .ils, .gbp, .eur, .aud, .cad]
         
-        let menuActions = options.map { currency in
+        let menuActions = AppCurrency.allCases.map { currency in
             UIAction(
                 title: "\(currency.rawValue) (\(currency.symbol))",
                 state: (currency == self.selectedCurrency) ? .on : .off
@@ -166,8 +159,6 @@ final class SettingsViewController: UIViewController {
         currencyButton.configuration?.title = "\(selectedCurrency.rawValue) (\(selectedCurrency.symbol))"
     }
     
-    // MARK: - Actions
-    
     private func handleSaveTapped() {
         let trimmedName = nameTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         guard !trimmedName.isEmpty else {
@@ -175,7 +166,6 @@ final class SettingsViewController: UIViewController {
             return
         }
         
-        // If currency changed, prompt with the explicit visual warning alert
         if selectedCurrency != initialCurrency {
             presentCurrencyWarningAlert(newName: trimmedName)
         } else {
@@ -216,4 +206,8 @@ final class SettingsViewController: UIViewController {
         let feedback = UINotificationFeedbackGenerator()
         feedback.notificationOccurred(.error)
     }
+}
+
+#Preview("Settings") {
+    SettingsViewController()
 }
