@@ -276,7 +276,14 @@ final class DashboardViewController: UIViewController {
         
         let impulseVC = ImpulseFormViewController(incompleteGoals: activeGoals)
         impulseVC.onImpulseSaved = { [weak self] in
-            self?.refreshData()
+            guard let self = self else { return }
+            
+            // Check if any active goal reached its target
+            if let completedGoal = self.goals.first(where: { !$0.isCompleted && $0.currentSaved >= $0.targetAmount }) {
+                self.celebrateCompletion(for: completedGoal)
+            } else {
+                self.refreshData()
+            }
         }
         
         let navController = UINavigationController(rootViewController: impulseVC)
@@ -350,6 +357,42 @@ final class DashboardViewController: UIViewController {
             print("Failed to delete goal: \(error)")
         }
     }
+    
+    func celebrateCompletion(for goal: Goal) {
+        guard let index = goals.firstIndex(where: { $0.id == goal.id }) else { return }
+        let indexPath = IndexPath(row: index, section: 0)
+        
+        // Scroll to the completed card
+        mainTableView.scrollToRow(at: indexPath, at: .middle, animated: true)
+        
+        // Success haptic
+        let feedback = UINotificationFeedbackGenerator()
+        feedback.notificationOccurred(.success)
+        
+        // Animate card fill and dim
+        if let cell = mainTableView.cellForRow(at: indexPath) as? GoalCardCell {
+            cell.cardView.animateToCompleted()
+        }
+        
+        // Fire Confetti
+        let confetti = ConfettiCannonView(frame: view.bounds)
+        view.addSubview(confetti)
+        confetti.fire()
+        
+        // Persist status and increment preference counter
+        goal.isCompleted = true
+        AppPreferences.shared.totalGoalsCompleted += 1
+        
+        do {
+            try DataController.shared.context.save()
+            // Delay re-sorting slightly
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { [weak self] in
+                self?.refreshData()
+            }
+        } catch {
+            print("Failed to save completed goal state: \(error)")
+        }
+    }
 }
 
 extension DashboardViewController: UITableViewDelegate, UITableViewDataSource {
@@ -363,8 +406,8 @@ extension DashboardViewController: UITableViewDelegate, UITableViewDataSource {
             }
             
             let goal = goals[indexPath.row]
+            cell.cardView.showsMoreButton = true
             cell.cardView.configure(with: goal)
-            cell.contentView.alpha = goal.isCompleted ? 0.5 : 1.0
             
             // Wire up the edit & delete actions triggered from the card's UIMenu
             cell.cardView.onEditTapped = { [weak self] in

@@ -135,16 +135,52 @@ final class GoalViewController: UIViewController {
     private func reloadGoalData() {
         sortedImpulses = goal.impulses.sorted(by: { $0.date > $1.date })
         
+        headerCardView.showsMoreButton = false
         headerCardView.configure(with: goal)
-        headerCardView.alpha = goal.isCompleted ? 0.5 : 1.0
         
         if let ellipsis = headerCardView.subviews.first(where: { ($0 as? UIButton) != nil }) {
             ellipsis.isHidden = true
         }
         
-        addImpulseButton.isEnabled = !goal.isCompleted
+        if goal.isCompleted {
+            receiptTableView.alpha = 0.5
+            sectionTitleLabel.alpha = 0.5
+            addImpulseButton.isEnabled = false
+            addImpulseButton.alpha = 0.5
+        } else {
+            receiptTableView.alpha = 1.0
+            sectionTitleLabel.alpha = 1.0
+            addImpulseButton.isEnabled = true
+            addImpulseButton.alpha = 1.0
+        }
+        
         emptyStateLabel.isHidden = !sortedImpulses.isEmpty
         receiptTableView.reloadData()
+    }
+    
+    private func triggerGoalCelebration() {
+        // Haptics
+        let feedback = UINotificationFeedbackGenerator()
+        feedback.notificationOccurred(.success)
+        
+        // Confetti
+        let confetti = ConfettiCannonView(frame: view.bounds)
+        view.addSubview(confetti)
+        confetti.fire()
+        
+        // Animate Header Card
+        headerCardView.animateToCompleted()
+        
+        // Update Model State
+        goal.isCompleted = true
+        AppPreferences.shared.totalGoalsCompleted += 1
+        
+        do {
+            try DataController.shared.context.save()
+            reloadGoalData()
+        } catch {
+            print("Failed to save goal completion: \(error)")
+        }
     }
     
     private func presentAddImpulseForm() {
@@ -153,15 +189,31 @@ final class GoalViewController: UIViewController {
         
         let impulseVC = ImpulseFormViewController(incompleteGoals: [goal])
         impulseVC.onImpulseSaved = { [weak self] in
-            self?.reloadGoalData()
+            guard let self = self else { return }
+            
+            // Did this impulse complete the goal?
+            if !self.goal.isCompleted && self.goal.currentSaved >= self.goal.targetAmount {
+                self.triggerGoalCelebration()
+            } else {
+                self.reloadGoalData()
+            }
         }
         presentFormSheet(impulseVC)
     }
     
     private func presentEditImpulseForm(for impulse: Impulse) {
+        // Disallow editing if the goal is completed
+        guard !goal.isCompleted else { return }
+        
         let impulseVC = ImpulseFormViewController(incompleteGoals: [goal], impulseToEdit: impulse)
         impulseVC.onImpulseSaved = { [weak self] in
-            self?.reloadGoalData()
+            guard let self = self else { return }
+            
+            if !self.goal.isCompleted && self.goal.currentSaved >= self.goal.targetAmount {
+                self.triggerGoalCelebration()
+            } else {
+                self.reloadGoalData()
+            }
         }
         presentFormSheet(impulseVC)
     }
@@ -226,6 +278,9 @@ extension GoalViewController: UITableViewDelegate, UITableViewDataSource {
         }
         let impulse = sortedImpulses[indexPath.row]
         cell.configure(with: impulse)
+        
+        // Disable selection highlight if the goal is completed
+        cell.selectionStyle = goal.isCompleted ? .none : .default
         return cell
     }
     
@@ -238,6 +293,10 @@ extension GoalViewController: UITableViewDelegate, UITableViewDataSource {
     
     // Swipe-to-delete
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        guard !goal.isCompleted else {
+            return nil
+        }
+        
         let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { [weak self] _, _, completion in
             guard let self = self else { return }
             let impulseToDelete = self.sortedImpulses[indexPath.row]

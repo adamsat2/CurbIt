@@ -11,6 +11,11 @@ final class GoalCardView: UIView {
     var onEditTapped: (() -> Void)?
     var onDeleteTapped: (() -> Void)?
     
+    var showsMoreButton: Bool {
+        get { !ellipsisButton.isHidden }
+        set { ellipsisButton.isHidden = !newValue }
+    }
+    
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 20, weight: .bold)
@@ -126,13 +131,26 @@ final class GoalCardView: UIView {
         layer.borderColor = AppTheme.subtleBorder.cgColor
     }
     
+    func animateToCompleted(completion: (() -> Void)? = nil) {
+        progressBar.setProgress(1.0, animated: true)
+        motivationLabel.text = ""
+        
+        UIView.animate(withDuration: 0.4, delay: 0.2, options: [.curveEaseInOut], animations: {
+            self.alpha = 0.5
+        }, completion: { _ in
+            completion?()
+        })
+    }
+    
     func configure(with goal: Goal) {
         titleLabel.text = goal.title
         
         let saved = AppPreferences.shared.format(amount: goal.currentSaved)
         let target = AppPreferences.shared.format(amount: goal.targetAmount)
         progressLabel.text = "\(saved) / \(target)"
-        progressBar.setProgress(goal.progressRatio, animated: true)
+        
+        let visualProgress = goal.isCompleted ? 1.0 : goal.progressRatio
+        progressBar.setProgress(visualProgress, animated: true)
         
         if let dueDate = goal.dueDate {
             let formatter = DateFormatter()
@@ -150,15 +168,19 @@ final class GoalCardView: UIView {
             dueDateLabel.isHidden = true
         }
         
-        // AI Motivation Logic
+        // Set completed card dimming & AI Motivation Logic
         if goal.isCompleted {
+            alpha = 0.5
             motivationLabel.text = ""
-        } else if goal.progressRatio < 0.3 {
-            motivationLabel.text = goal.motivationStarter ?? "Great start! Every impulse resisted adds up."
-        } else if goal.progressRatio < 0.8 {
-            motivationLabel.text = goal.motivationMiddle ?? "You are making solid progress. Keep it going!"
         } else {
-            motivationLabel.text = goal.motivationEnd ?? "Almost there! Just a few more saves to reach your goal."
+            alpha = 1.0
+            if goal.progressRatio < 0.3 {
+                motivationLabel.text = goal.motivationStarter ?? "Great start! Every impulse resisted adds up."
+            } else if goal.progressRatio < 0.8 {
+                motivationLabel.text = goal.motivationMiddle ?? "You are making solid progress. Keep it going!"
+            } else {
+                motivationLabel.text = goal.motivationEnd ?? "Almost there! Just a few more saves to reach your goal."
+            }
         }
     }
 }
