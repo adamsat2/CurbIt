@@ -5,6 +5,7 @@
 
 import UIKit
 import SwiftUI
+import UserNotifications
 
 final class RegistrationViewController: UIViewController {
 
@@ -152,23 +153,36 @@ final class RegistrationViewController: UIViewController {
         let inputName = nameTextField.text?.trimmingCharacters(in: .whitespaces) ?? ""
         guard !inputName.isEmpty else { return } // Safety check
     
+        // Save the user's preferences
         AppPreferences.shared.userName = inputName
         AppPreferences.shared.currency = selectedCurrency
         AppPreferences.shared.isFirstLaunch = false
         
-        // Transition to Dashboard
-        let dashboardVC = DashboardViewController()
-        let navController = UINavigationController(rootViewController: dashboardVC)
-        
-        guard let window = view.window else { return }
-        window.rootViewController = navController
-        
-        // Smooth cross-dissolve animation swapping the root controller
-        UIView.transition(with: window,
-                          duration: 0.4,
-                          options: .transitionCrossDissolve,
-                          animations: nil,
-                          completion: nil)
+        // Request notification permissions from iOS
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { [weak self] granted, error in
+            
+            if let error = error {
+                print("Notification permission error: \(error)")
+            }
+            
+            // Hop back to the Main Thread to update the UI
+            DispatchQueue.main.async {
+                guard let self = self, let window = self.view.window else { return }
+                
+                // Transition to Dashboard
+                let dashboardVC = DashboardViewController()
+                let navController = UINavigationController(rootViewController: dashboardVC)
+                
+                window.rootViewController = navController
+                
+                // Smooth cross-dissolve animation swapping the root controller
+                UIView.transition(with: window,
+                                  duration: 0.4,
+                                  options: .transitionCrossDissolve,
+                                  animations: nil,
+                                  completion: nil)
+            }
+        }
     }
 }
 
