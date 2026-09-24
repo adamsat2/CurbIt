@@ -12,7 +12,7 @@ final class RegistrationViewController: UIViewController {
     
     private let welcomeLabel: UILabel = {
         let label = UILabel()
-        label.text = "Welcome to CurbIt"
+        label.text = String(localized: "Welcome to CurbIt")
         label.font = .systemFont(ofSize: 32, weight: .bold)
         label.textAlignment = .center
         label.adjustsFontForContentSizeCategory = true
@@ -21,7 +21,7 @@ final class RegistrationViewController: UIViewController {
     
     private let subtitleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Let's set up your profile."
+        label.text = String(localized: "Let's set up your profile.")
         label.font = .preferredFont(forTextStyle: .body)
         label.textColor = .secondaryLabel
         label.textAlignment = .center
@@ -31,7 +31,7 @@ final class RegistrationViewController: UIViewController {
     
     private let nameTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Enter your name"
+        textField.placeholder = String(localized: "Enter your name")
         textField.borderStyle = .none
         textField.backgroundColor = AppTheme.cardSurface
         textField.layer.borderColor = AppTheme.subtleBorder.cgColor
@@ -51,7 +51,7 @@ final class RegistrationViewController: UIViewController {
     
     private lazy var currencyButton: UIButton = {
         var config = UIButton.Configuration.tinted()
-        config.title = "Currency: USD ($)"
+        config.title = String(localized: "Currency: USD ($)")
         config.imagePlacement = .trailing
         config.imagePadding = 8
         config.baseForegroundColor = AppTheme.vaultTint
@@ -65,7 +65,7 @@ final class RegistrationViewController: UIViewController {
     
     private lazy var confirmButton: UIButton = {
         var config = UIButton.Configuration.filled()
-        config.title = "Get Started"
+        config.title = String(localized: "Get Started")
         config.cornerStyle = .capsule
         config.baseBackgroundColor = AppTheme.vaultTint
         config.contentInsets = NSDirectionalEdgeInsets(top: 16, leading: 32, bottom: 16, trailing: 32)
@@ -136,7 +136,7 @@ final class RegistrationViewController: UIViewController {
                 self?.setupCurrencyMenu() // Refresh menu to update checkmark state
             }
         }
-        currencyButton.menu = UIMenu(title: "Select Currency", children: actions)
+        currencyButton.menu = UIMenu(title: String(localized: "Select Currency"), children: actions)
     }
     
     @objc private func textFieldDidChange() {

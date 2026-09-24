@@ -41,7 +41,7 @@ final class GoalFormViewController: UIViewController {
     
     private let nameTextField: UITextField = {
         let field = UITextField()
-        field.placeholder = "Goal Name (e.g., Vacation to Rome)"
+        field.placeholder = String(localized: "Goal Name (e.g., Vacation to Rome)")
         field.backgroundColor = AppTheme.cardSurface
         field.layer.borderColor = AppTheme.subtleBorder.cgColor
         field.layer.borderWidth = 1.0
@@ -57,7 +57,7 @@ final class GoalFormViewController: UIViewController {
     
     private let amountTextField: UITextField = {
         let field = UITextField()
-        field.placeholder = "Target Amount (\(AppPreferences.shared.currency.symbol))"
+        field.placeholder = String(localized: "Target Amount (\(AppPreferences.shared.currency.symbol))")
         field.keyboardType = .decimalPad
         field.backgroundColor = AppTheme.cardSurface
         field.layer.borderColor = AppTheme.subtleBorder.cgColor
@@ -73,7 +73,7 @@ final class GoalFormViewController: UIViewController {
     
     private let dueDateSwitchLabel: UILabel = {
         let label = UILabel()
-        label.text = "Set Due Date"
+        label.text = String(localized: "Set Due Date")
         label.font = .preferredFont(forTextStyle: .body)
         label.textColor = .label
         return label
@@ -102,7 +102,7 @@ final class GoalFormViewController: UIViewController {
     
     private let aiDisclaimerLabel: UILabel = {
         let label = UILabel()
-        label.text = "Used with Apple Intelligence to create milestone motivation. Requires supported devices, enabled state, and an English locale."
+        label.text = String(localized: "Used with Apple Intelligence to create milestone motivation. Requires supported devices, enabled state, and an English locale.")
         label.font = .preferredFont(forTextStyle: .caption1)
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
@@ -143,7 +143,7 @@ final class GoalFormViewController: UIViewController {
     }
     
     private func setupNavigation() {
-        title = existingGoal == nil ? "New Goal" : "Edit Goal"
+        title = existingGoal == nil ? String(localized: "New Goal"): String(localized: "Edit Goal")
         
         let cancelAction = UIAction { [weak self] _ in
             self?.handleCancel()
@@ -167,8 +167,8 @@ final class GoalFormViewController: UIViewController {
         contentStackView.addArrangedSubview(aiDisclaimerLabel)
         contentStackView.addArrangedSubview(submitButton)
         
-        submitButton.configuration?.title = existingGoal == nil ? "Create Goal" : "Save Changes"
-        titleLabel.text = existingGoal == nil ? "Define your goal" : "Update goal details"
+        submitButton.configuration?.title = existingGoal == nil ? String(localized: "Create Goal") : String(localized: "Save Changes")
+        titleLabel.text = existingGoal == nil ? String(localized: "Define your goal") : String(localized: "Update goal details")
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -235,12 +235,12 @@ final class GoalFormViewController: UIViewController {
     
     private func presentDiscardAlert() {
         let alert = UIAlertController(
-            title: "Discard Changes?",
-            message: "Any unsaved changes will be lost.",
+            title: String(localized: "Discard Changes?"),
+            message: String(localized: "Any unsaved changes will be lost."),
             preferredStyle: .alert
         )
-        alert.addAction(UIAlertAction(title: "Keep Editing", style: .cancel))
-        alert.addAction(UIAlertAction(title: "Discard", style: .destructive) { [weak self] _ in
+        alert.addAction(UIAlertAction(title: String(localized: "Keep Editing"), style: .cancel))
+        alert.addAction(UIAlertAction(title: String(localized: "Discard"), style: .destructive) { [weak self] _ in
             self?.dismiss(animated: true)
         })
         present(alert, animated: true)

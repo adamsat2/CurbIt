@@ -85,11 +85,11 @@ final class GoalCardView: UIView {
         layer.cornerCurve = .continuous
         layer.borderWidth = 1.0
         
-        let editAction = UIAction(title: "Edit", image: UIImage(systemName: "pencil")) { [weak self] _ in
+        let editAction = UIAction(title: String(localized: "Edit"), image: UIImage(systemName: "pencil")) { [weak self] _ in
             self?.onEditTapped?()
         }
         
-        let deleteAction = UIAction(title: "Delete", image: UIImage(systemName: "trash"), attributes: .destructive) { [weak self] _ in
+        let deleteAction = UIAction(title: String(localized: "Delete"), image: UIImage(systemName: "trash"), attributes: .destructive) { [weak self] _ in
             self?.onDeleteTapped?()
         }
         
@@ -157,10 +157,10 @@ final class GoalCardView: UIView {
             formatter.dateStyle = .medium
             
             if goal.isOverdue {
-                dueDateLabel.text = "Overdue: \(formatter.string(from: dueDate))"
+                dueDateLabel.text = String(localized: "Overdue: \(formatter.string(from: dueDate))")
                 dueDateLabel.textColor = .systemRed
             } else {
-                dueDateLabel.text = "Due: \(formatter.string(from: dueDate))"
+                dueDateLabel.text = String(localized: "Due: \(formatter.string(from: dueDate))")
                 dueDateLabel.textColor = .secondaryLabel
             }
             dueDateLabel.isHidden = false
@@ -174,12 +174,15 @@ final class GoalCardView: UIView {
             motivationLabel.text = ""
         } else {
             alpha = 1.0
+            
+            let failsafeSuite = MotivationService.defaultFallbackSuites[0]
+            
             if goal.progressRatio < 0.3 {
-                motivationLabel.text = goal.motivationStarter ?? "Great start! Every impulse resisted adds up."
+                motivationLabel.text = goal.motivationStarter ?? failsafeSuite.starter
             } else if goal.progressRatio < 0.8 {
-                motivationLabel.text = goal.motivationMiddle ?? "You are making solid progress. Keep it going!"
+                motivationLabel.text = goal.motivationMiddle ?? failsafeSuite.middle
             } else {
-                motivationLabel.text = goal.motivationEnd ?? "Almost there! Just a few more saves to reach your goal."
+                motivationLabel.text = goal.motivationEnd ?? failsafeSuite.end
             }
         }
     }

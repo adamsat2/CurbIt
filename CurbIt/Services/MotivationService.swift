@@ -19,21 +19,21 @@ final class MotivationService {
     static let defaultFallbackSuites: [MotivationMilestones] = [
         // Suite 1: Momentum & Compounding
         MotivationMilestones(
-            starter: "Great start! Every impulse resisted brings you closer to your goal.",
-            middle: "You're making steady progress. Keep going, you're on the right track!",
-            end: "Almost there! Just a few more saves to reach your target."
+            starter: String(localized: "Great start! Every impulse resisted brings you closer to your goal."),
+            middle: String(localized: "You're making steady progress. Keep going, you're on the right track!"),
+            end: String(localized: "Almost there! Just a few more saves to reach your target.")
         ),
         // Suite 2: Restraint & Discipline
         MotivationMilestones(
-            starter: "First step taken. The hardest part of restraint is starting.",
-            middle: "Halfway mark in sight. Your daily discipline is paying off!",
-            end: "The finish line is right here. Stay focused on the prize."
+            starter: String(localized: "First step taken. The hardest part of restraint is starting."),
+            middle: String(localized: "Halfway mark in sight. Your daily discipline is paying off!"),
+            end: String(localized: "The finish line is right here. Stay focused on the prize.")
         ),
         // Suite 3: Vision & Compounding Value
         MotivationMilestones(
-            starter: "Seed planted. Small resists lead to major rewards.",
-            middle: "Building strong momentum. Keep eyes fixed on the vision!",
-            end: "Final stretch! Just a couple more saves to cross the line."
+            starter: String(localized: "Seed planted. Small resists lead to major rewards."),
+            middle: String(localized: "Building strong momentum. Keep eyes fixed on the vision!"),
+            end: String(localized: "Final stretch! Just a couple more saves to cross the line.")
         )
     ]
     
@@ -48,11 +48,16 @@ final class MotivationService {
     }
     
     var isAppleIntelligenceAvailable: Bool {
+        // The simulator doesn't have the capabilities to use AI
+        #if targetEnvironment(simulator)
+        return false
+        #else
         guard isLanguageSupported else { return false }
         if #available(iOS 18.1, *) {
             return true
         }
         return false
+        #endif
     }
     
     func generateMilestones(from title: String?) async -> MotivationMilestones {

@@ -10,7 +10,7 @@ final class GoalViewController: UIViewController {
     
     private let sectionTitleLabel: UILabel = {
         let label = UILabel()
-        label.text = "RESISTED PURCHASES"
+        label.text = String(localized: "RESISTED PURCHASES")
         label.font = .systemFont(ofSize: 13, weight: .bold)
         label.textColor = .secondaryLabel
         label.adjustsFontForContentSizeCategory = true
@@ -31,7 +31,7 @@ final class GoalViewController: UIViewController {
     
     private let emptyStateLabel: UILabel = {
         let label = UILabel()
-        label.text = "No resisted impulses logged yet.\nEvery resisted purchase brings you closer to your goal."
+        label.text = String(localized: "No resisted impulses logged yet.\nEvery resisted purchase brings you closer to your goal.")
         label.textColor = .tertiaryLabel
         label.textAlignment = .center
         label.numberOfLines = 0
@@ -43,7 +43,7 @@ final class GoalViewController: UIViewController {
     
     private lazy var addImpulseButton: UIButton = {
         var config = UIButton.Configuration.filled()
-        config.title = "Log Resisted Impulse"
+        config.title = String(localized: "Log Resisted Impulse")
         config.image = UIImage(systemName: "plus.circle.fill")
         config.imagePadding = 8
         config.cornerStyle = .capsule
@@ -84,11 +84,11 @@ final class GoalViewController: UIViewController {
         navigationItem.title = goal.title
         navigationItem.largeTitleDisplayMode = .never
         
-        let editAction = UIAction(title: "Edit Goal", image: UIImage(systemName: "pencil")) { [weak self] _ in
+        let editAction = UIAction(title: String(localized: "Edit Goal"), image: UIImage(systemName: "pencil")) { [weak self] _ in
             self?.presentEditGoalForm()
         }
         
-        let deleteAction = UIAction(title: "Delete Goal", image: UIImage(systemName: "trash"), attributes: .destructive) { [weak self] _ in
+        let deleteAction = UIAction(title: String(localized: "Delete Goal"), image: UIImage(systemName: "trash"), attributes: .destructive) { [weak self] _ in
             self?.presentDeleteConfirmation()
         }
         
@@ -239,12 +239,12 @@ final class GoalViewController: UIViewController {
     
     private func presentDeleteConfirmation() {
         let alert = UIAlertController(
-            title: "Delete Goal",
-            message: "Are you sure you want to delete \"\(goal.title)\"? All logged resisted impulses for this goal will be removed.",
+            title: String(localized: "Delete Goal"),
+            message: String(localized: "Are you sure you want to delete \"\(goal.title)\"? All logged resisted impulses for this goal will be removed."),
             preferredStyle: .alert
         )
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-        alert.addAction(UIAlertAction(title: "Delete", style: .destructive) { [weak self] _ in
+        alert.addAction(UIAlertAction(title: String(localized: "Cancel"), style: .cancel))
+        alert.addAction(UIAlertAction(title: String(localized: "Delete"), style: .destructive) { [weak self] _ in
             self?.deleteCurrentGoal()
         })
         present(alert, animated: true)
@@ -297,7 +297,7 @@ extension GoalViewController: UITableViewDelegate, UITableViewDataSource {
             return nil
         }
         
-        let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { [weak self] _, _, completion in
+        let deleteAction = UIContextualAction(style: .destructive, title: String(localized: "Delete")) { [weak self] _, _, completion in
             guard let self = self else { return }
             let impulseToDelete = self.sortedImpulses[indexPath.row]
             

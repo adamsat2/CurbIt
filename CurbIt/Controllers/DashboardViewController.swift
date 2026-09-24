@@ -20,7 +20,7 @@ final class DashboardViewController: UIViewController {
     
     private let totalSavedCaptionLabel: UILabel = {
         let label = UILabel()
-        label.text = "TOTAL SAVED"
+        label.text = String(localized: "TOTAL SAVED")
         label.font = .systemFont(ofSize: 12, weight: .bold)
         label.textColor = .secondaryLabel
         label.adjustsFontForContentSizeCategory = true
@@ -52,7 +52,7 @@ final class DashboardViewController: UIViewController {
     
     private let completedGoalsCaptionLabel: UILabel = {
         let label = UILabel()
-        label.text = "COMPLETED"
+        label.text = String(localized: "COMPLETED")
         label.font = .systemFont(ofSize: 12, weight: .bold)
         label.textColor = .secondaryLabel
         label.textAlignment = .right
@@ -81,7 +81,7 @@ final class DashboardViewController: UIViewController {
     
     private lazy var addImpulseButton: UIButton = {
         var config = UIButton.Configuration.filled()
-        config.title = "Log Impulse"
+        config.title = String(localized: "Log Impulse")
         config.image = UIImage(systemName: "plus.circle.fill")
         config.imagePadding = 8
         config.cornerStyle = .capsule
@@ -108,14 +108,14 @@ final class DashboardViewController: UIViewController {
         icon.heightAnchor.constraint(equalToConstant: 60).isActive = true
         
         let message = UILabel()
-        message.text = "No goals yet.\nCreate a new one to start curbing your impulses."
+        message.text = String(localized: "No goals yet.\nCreate a new one to start curbing your impulses.")
         message.numberOfLines = 0
         message.textAlignment = .center
         message.textColor = .secondaryLabel
         message.font = .preferredFont(forTextStyle: .body)
         
         var config = UIButton.Configuration.filled()
-        config.title = "Add Your First Goal"
+        config.title = String(localized: "Add Your First Goal")
         config.cornerStyle = .capsule
         config.baseBackgroundColor = AppTheme.vaultTint
         config.contentInsets = NSDirectionalEdgeInsets(top: 12, leading: 24, bottom: 12, trailing: 24)
@@ -210,10 +210,10 @@ final class DashboardViewController: UIViewController {
         let hour = Calendar.current.component(.hour, from: Date())
         let name = AppPreferences.shared.userName
         switch hour {
-        case 5..<12: greetingLabel.text = "Good morning, \(name)"
-        case 12..<17: greetingLabel.text = "Good afternoon, \(name)"
-        case 17..<21: greetingLabel.text = "Good evening, \(name)"
-        default: greetingLabel.text = "Good night, \(name)"
+        case 5..<12: greetingLabel.text = String(localized: "Good morning, \(name)")
+        case 12..<17: greetingLabel.text = String(localized: "Good afternoon, \(name)")
+        case 17..<21: greetingLabel.text = String(localized: "Good evening, \(name)")
+        default: greetingLabel.text = String(localized: "Good night, \(name)")
         }
         
         // Compute Stats
@@ -239,7 +239,7 @@ final class DashboardViewController: UIViewController {
         } else if !hasIncompleteGoals {
             addImpulseButton.isHidden = false
             addImpulseButton.isEnabled = false
-            addImpulseButton.configuration?.subtitle = "All goals completed"
+            addImpulseButton.configuration?.subtitle = String(localized: "All goals completed")
         } else {
             addImpulseButton.isHidden = false
             addImpulseButton.isEnabled = true
@@ -326,14 +326,14 @@ final class DashboardViewController: UIViewController {
     
     private func presentDeleteConfirmation(for goal: Goal) {
         let alert = UIAlertController(
-            title: "Delete Goal",
-            message: "Are you sure you want to delete \"\(goal.title)\"? All logged resisted impulses for this goal will be removed.",
+            title: String(localized: "Delete Goal"),
+            message: String(localized: "Are you sure you want to delete \"\(goal.title)\"? All logged resisted impulses for this goal will be removed."),
             preferredStyle: .alert
         )
         
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: String(localized: "Cancel"), style: .cancel))
         
-        let deleteAction = UIAlertAction(title: "Delete", style: .destructive) { [weak self] _ in
+        let deleteAction = UIAlertAction(title: String(localized: "Delete"), style: .destructive) { [weak self] _ in
             self?.deleteGoal(goal)
         }
         alert.addAction(deleteAction)

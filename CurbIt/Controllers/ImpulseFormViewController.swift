@@ -27,7 +27,7 @@ final class ImpulseFormViewController: UIViewController {
     
     private let nameTextField: UITextField = {
         let field = UITextField()
-        field.placeholder = "What did you resist? (e.g., Takeout coffee)"
+        field.placeholder = String(localized: "What did you resist? (e.g., Takeout coffee)")
         field.backgroundColor = AppTheme.cardSurface
         field.layer.borderColor = AppTheme.subtleBorder.cgColor
         field.layer.borderWidth = 1.0
@@ -123,7 +123,7 @@ final class ImpulseFormViewController: UIViewController {
     }
     
     private func setupNavigation() {
-        navigationItem.title = isEditMode ? "Edit Impulse" : "New Impulse"
+        navigationItem.title = isEditMode ? String(localized: "Edit Impulse") : String(localized: "New Impulse")
         let cancelAction = UIAction { [weak self] _ in
             self?.dismiss(animated: true)
         }
@@ -131,8 +131,8 @@ final class ImpulseFormViewController: UIViewController {
     }
     
     private func setupLayout() {
-        titleLabel.text = isEditMode ? "Edit Resisted Impulse" : "Log Resisted Impulse"
-        saveButton.configuration?.title = isEditMode ? "Update Impulse" : "Save Impulse"
+        titleLabel.text = isEditMode ? String(localized: "Edit Resisted Impulse") : String(localized: "Log Resisted Impulse")
+        saveButton.configuration?.title = isEditMode ? String(localized: "Update Impulse" ) : String(localized: "Save Impulse")
         
         view.addSubview(contentStack)
         
@@ -183,14 +183,14 @@ final class ImpulseFormViewController: UIViewController {
             }
         }
         
-        goalPickerButton.menu = UIMenu(title: "Contribute to Goal", children: actions)
+        goalPickerButton.menu = UIMenu(title: String(localized: "Contribute to Goal"), children: actions)
     }
     
     private func updatePickerTitle() {
         if let current = selectedGoal {
-            goalPickerButton.configuration?.title = "Goal: \(current.title)"
+            goalPickerButton.configuration?.title = String(localized: "Goal: \(current.title)")
         } else {
-            goalPickerButton.configuration?.title = "Select a Goal"
+            goalPickerButton.configuration?.title = String(localized: "Select a Goal")
         }
     }
     

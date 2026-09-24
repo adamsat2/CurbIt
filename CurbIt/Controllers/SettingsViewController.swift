@@ -14,7 +14,7 @@ final class SettingsViewController: UIViewController {
     
     private let nameCaptionLabel: UILabel = {
         let label = UILabel()
-        label.text = "YOUR NAME"
+        label.text = String(localized: "YOUR NAME")
         label.font = .systemFont(ofSize: 13, weight: .bold)
         label.textColor = .secondaryLabel
         label.adjustsFontForContentSizeCategory = true
@@ -23,7 +23,7 @@ final class SettingsViewController: UIViewController {
     
     private let nameTextField: UITextField = {
         let field = UITextField()
-        field.placeholder = "Enter your name"
+        field.placeholder = String(localized: "Enter your name")
         field.backgroundColor = AppTheme.cardSurface
         field.layer.borderColor = AppTheme.subtleBorder.cgColor
         field.layer.borderWidth = 1.0
@@ -39,7 +39,7 @@ final class SettingsViewController: UIViewController {
     
     private let currencyCaptionLabel: UILabel = {
         let label = UILabel()
-        label.text = "CURRENCY"
+        label.text = String(localized: "CURRENCY")
         label.font = .systemFont(ofSize: 13, weight: .bold)
         label.textColor = .secondaryLabel
         label.adjustsFontForContentSizeCategory = true
@@ -62,7 +62,7 @@ final class SettingsViewController: UIViewController {
     
     private lazy var saveButton: UIButton = {
         var config = UIButton.Configuration.filled()
-        config.title = "Save Settings"
+        config.title = String(localized: "Save Settings")
         config.cornerStyle = .capsule
         config.baseBackgroundColor = AppTheme.vaultTint
         config.contentInsets = NSDirectionalEdgeInsets(top: 14, leading: 24, bottom: 14, trailing: 24)
@@ -103,7 +103,7 @@ final class SettingsViewController: UIViewController {
     }
     
     private func setupNavigation() {
-        navigationItem.title = "Settings"
+        navigationItem.title = String(localized: "Settings")
         
         let closeAction = UIAction { [weak self] _ in
             self?.dismiss(animated: true)
@@ -152,7 +152,7 @@ final class SettingsViewController: UIViewController {
             }
         }
         
-        currencyButton.menu = UIMenu(title: "Select Currency", children: menuActions)
+        currencyButton.menu = UIMenu(title: String(localized: "Select Currency"), children: menuActions)
     }
     
     private func updateCurrencyButtonTitle() {
@@ -175,13 +175,13 @@ final class SettingsViewController: UIViewController {
     
     private func presentCurrencyWarningAlert(newName: String) {
         let alert = UIAlertController(
-            title: "Visual Currency Change",
-            message: "Changing the currency symbol only updates how amounts are formatted. It does not convert or recalculate existing numbers.",
+            title: String(localized: "Visual Currency Change"),
+            message: String(localized: "Changing the currency symbol only updates how amounts are formatted. It does not convert or recalculate existing numbers."),
             preferredStyle: .alert
         )
         
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-        alert.addAction(UIAlertAction(title: "Confirm", style: .default) { [weak self] _ in
+        alert.addAction(UIAlertAction(title: String(localized: "Cancel"), style: .cancel))
+        alert.addAction(UIAlertAction(title: String(localized: "Confirm"), style: .default) { [weak self] _ in
             self?.commitSettings(newName: newName)
         })
         
