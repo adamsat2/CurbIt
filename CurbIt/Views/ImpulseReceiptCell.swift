@@ -27,7 +27,7 @@ final class ImpulseReceiptCell: UITableViewCell {
         let label = UILabel()
         label.font = .monospacedDigitSystemFont(ofSize: 16, weight: .bold)
         label.textColor = AppTheme.vaultTint
-        label.textAlignment = .right
+        label.textAlignment = .natural
         return label
     }()
     

@@ -55,7 +55,7 @@ final class DashboardViewController: UIViewController {
         label.text = String(localized: "COMPLETED")
         label.font = .systemFont(ofSize: 12, weight: .bold)
         label.textColor = .secondaryLabel
-        label.textAlignment = .right
+        label.textAlignment = .natural
         label.adjustsFontForContentSizeCategory = true
         return label
     }()
