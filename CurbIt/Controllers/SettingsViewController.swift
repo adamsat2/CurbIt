@@ -51,8 +51,8 @@ final class SettingsViewController: UIViewController {
         config.imagePlacement = .trailing
         config.imagePadding = 8
         config.baseForegroundColor = AppTheme.vaultTint
-        config.baseBackgroundColor = AppTheme.vaultTint.withAlphaComponent(0.12)
-        config.cornerStyle = .medium
+        config.baseBackgroundColor = AppTheme.vaultTint
+        config.cornerStyle = .capsule
         config.contentInsets = NSDirectionalEdgeInsets(top: 14, leading: 16, bottom: 14, trailing: 16)
         
         let button = UIButton(configuration: config)

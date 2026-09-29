@@ -100,15 +100,6 @@ final class GoalFormViewController: UIViewController {
         return picker
     }()
     
-    private let aiDisclaimerLabel: UILabel = {
-        let label = UILabel()
-        label.text = String(localized: "Used with Apple Intelligence to create milestone motivation. Requires supported devices, enabled state, and an English locale.")
-        label.font = .preferredFont(forTextStyle: .caption1)
-        label.textColor = .secondaryLabel
-        label.numberOfLines = 0
-        return label
-    }()
-    
     private lazy var submitButton: UIButton = {
         var config = UIButton.Configuration.filled()
         config.cornerStyle = .capsule
@@ -164,7 +155,6 @@ final class GoalFormViewController: UIViewController {
         contentStackView.addArrangedSubview(nameTextField)
         contentStackView.addArrangedSubview(amountTextField)
         contentStackView.addArrangedSubview(dateToggleStack)
-        contentStackView.addArrangedSubview(aiDisclaimerLabel)
         contentStackView.addArrangedSubview(submitButton)
         
         submitButton.configuration?.title = existingGoal == nil ? String(localized: "Create Goal") : String(localized: "Save Changes")

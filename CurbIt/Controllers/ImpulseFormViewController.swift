@@ -43,7 +43,7 @@ final class ImpulseFormViewController: UIViewController {
     
     private let amountTextField: UITextField = {
         let field = UITextField()
-        field.placeholder = "0.00"
+        field.placeholder = String(localized: "Amount Saved (\(AppPreferences.shared.currency.symbol))")
         field.keyboardType = .decimalPad
         field.backgroundColor = AppTheme.cardSurface
         field.layer.borderColor = AppTheme.subtleBorder.cgColor
@@ -51,23 +51,19 @@ final class ImpulseFormViewController: UIViewController {
         field.layer.cornerRadius = 10
         field.font = .preferredFont(forTextStyle: .body)
         
-        let prefixLabel = UILabel()
-        prefixLabel.text = "  \(AppPreferences.shared.currency.symbol)  "
-        prefixLabel.font = .systemFont(ofSize: 17, weight: .bold)
-        prefixLabel.textColor = AppTheme.vaultTint
-        prefixLabel.sizeToFit()
-        
-        field.leftView = prefixLabel
+        let padding = UIView(frame: CGRect(x: 0, y: 0, width: 14, height: 48))
+        field.leftView = padding
         field.leftViewMode = .always
         return field
     }()
     
     private lazy var goalPickerButton: UIButton = {
         var config = UIButton.Configuration.tinted()
+        config.cornerStyle = .capsule
         config.imagePlacement = .trailing
         config.imagePadding = 8
         config.baseForegroundColor = AppTheme.vaultTint
-        config.baseBackgroundColor = AppTheme.vaultTint.withAlphaComponent(0.12)
+        config.baseBackgroundColor = AppTheme.vaultTint
         config.contentInsets = NSDirectionalEdgeInsets(top: 12, leading: 14, bottom: 12, trailing: 14)
         
         let button = UIButton(configuration: config)

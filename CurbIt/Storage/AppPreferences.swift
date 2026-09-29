@@ -70,7 +70,7 @@ final class AppPreferences {
         get { defaults.integer(forKey: Keys.completedGoalsCount) }
         set { defaults.set(max(0, newValue), forKey: Keys.completedGoalsCount) }
     }
-    
+
     func format(amount: Decimal) -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
@@ -78,7 +78,14 @@ final class AppPreferences {
         formatter.currencySymbol = currency.symbol
         formatter.maximumFractionDigits = 2
         formatter.minimumFractionDigits = 0
-        return formatter.string(from: amount as NSDecimalNumber) ?? "\(currency.symbol)\(amount)"
+        
+        guard let formatted = formatter.string(from: amount as NSDecimalNumber) else {
+            return "\(currency.symbol)\(amount)"
+        }
+        
+        // Generic space cleanup (strips non-breaking spaces inserted by Foundation NumberFormatter)
+        return formatted
+            .replacingOccurrences(of: "\u{00A0}", with: "")
+            .replacingOccurrences(of: " ", with: "")
     }
 }
-

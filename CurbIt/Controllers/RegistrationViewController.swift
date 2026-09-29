@@ -16,6 +16,10 @@ final class RegistrationViewController: UIViewController {
         label.text = String(localized: "Welcome to CurbIt")
         label.font = .systemFont(ofSize: 32, weight: .bold)
         label.textAlignment = .center
+        label.numberOfLines = 0
+        label.lineBreakMode = .byWordWrapping
+        label.adjustsFontSizeToFitWidth = true
+        label.minimumScaleFactor = 0.8
         label.adjustsFontForContentSizeCategory = true
         return label
     }()
@@ -26,6 +30,7 @@ final class RegistrationViewController: UIViewController {
         label.font = .preferredFont(forTextStyle: .body)
         label.textColor = .secondaryLabel
         label.textAlignment = .center
+        label.numberOfLines = 0
         label.adjustsFontForContentSizeCategory = true
         return label
     }()
@@ -44,14 +49,15 @@ final class RegistrationViewController: UIViewController {
         textField.font = .preferredFont(forTextStyle: .body)
         textField.adjustsFontForContentSizeCategory = true
         
-        let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: 12, height: 50))
-        textField.leftView = paddingView
+        let padding = UIView(frame: CGRect(x: 0, y: 0, width: 14, height: 50))
+        textField.leftView = padding
         textField.leftViewMode = .always
         return textField
     }()
     
     private lazy var currencyButton: UIButton = {
         var config = UIButton.Configuration.tinted()
+        config.cornerStyle = .capsule
         config.title = String(localized: "Currency: USD ($)")
         config.imagePlacement = .trailing
         config.imagePadding = 8
